@@ -126,7 +126,9 @@ function createSnake(x, y, size, cell_size)
 		end,
 	
 		move = function(self, space)
-			local t = {}
+			local temp = {}
+			local tempp = {}
+			--[[local t = {}
 			local tt = {}
 			
 			for i, v in pairs(self.body) do
@@ -159,7 +161,52 @@ function createSnake(x, y, size, cell_size)
 				end
 				
 				
-			end 
+			end ]]
+			--[[table.insert(self.body, self.body[1])
+			t = self.body[1]
+			if self.direction == "right" then
+				--ttt = {x = self.cell_size, y = 0}
+				t.x = t.x + self.cell_size
+			elseif self.direction == "left" then
+				--ttt = {x = - self.cell_size, y = 0}
+				t.x = t.x - self.cell_size
+			elseif self.direction== "up" then
+				--ttt = {x = 0, y = - self.cell_size}
+				t.y = t.y - self.cell_size
+			elseif self.direction == "down" then
+				--ttt = {x = 0, y = self.cell_size}
+				t.y = t.y + self.cell_size
+			end
+			if self.eat == false then
+				table.remove(self.body, #self.body)
+			end]]
+			for i, v in pairs(self.body) do
+				if i == 1 then
+					temp = {x = v.x, y = v.y, size = v.size, draw_x = v.draw_x, draw_y = v.draw_y, x_tween = "", y_tween = ""}
+					local t = v
+					if self.direction == "right" then
+						--ttt = {x = self.cell_size, y = 0}
+						t.x = t.x + self.cell_size
+					elseif self.direction == "left" then
+						--ttt = {x = - self.cell_size, y = 0}
+						t.x = t.x - self.cell_size
+					elseif self.direction== "up" then
+						--ttt = {x = 0, y = - self.cell_size}
+						t.y = t.y - self.cell_size
+					elseif self.direction == "down" then
+						--ttt = {x = 0, y = self.cell_size}
+						t.y = t.y + self.cell_size
+					end
+					v.size = self.size
+					self.eat = false
+				else
+					tempp = {x = v.x, y = v.y, size = v.size, draw_x = v.draw_x, draw_y = v.draw_y, x_tween = "", y_tween = ""}
+					v.x = temp.x
+					v.y = temp.y
+					v.size = temp.size
+					temp = tempp
+				end
+			end
 		end,
 		
 		kill = function(self)
