@@ -13,8 +13,8 @@ function createApple(x, y, size, cell_size)
 		end,
 		
 		draw = function(self)
-			local x =	((self.x * self.cell_size) + self.cell_size/2)  - self.size/2
-			local y = ((self.y * cell_size)  + self.cell_size/2 ) - self.size/2
+			local x =	(self.x + self.cell_size/2)  - self.size/2
+			local y = (self.y  + self.cell_size/2 ) - self.size/2
 			love.graphics.rectangle("fill", x, y, self.size, self.size)
 		end,
 		

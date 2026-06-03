@@ -13,9 +13,13 @@ function createGrid(size, win_width, win_height)
 			local grid_y_count = self.win_height/self.size
 			local t = {}
 			
+			local function gridConvert(coord)
+				return (coord - 1) * self.size
+			end
+			
 			for grid_y = 1, grid_y_count do
 				for grid_x = 1, grid_x_count do
-					table.insert(t, {x = grid_x, y = grid_y, space = ""})
+					table.insert(t, {x = grid_x, y = grid_y, world_x = gridConvert(grid_x), world_y = gridConvert(grid_y),space = ""})
 				end
 			end
 			
@@ -77,16 +81,27 @@ function createGrid(size, win_width, win_height)
 			return t
 		end,
 		
+		convertGrid = function(self, x, y)
+			
+		end,
+		
 		getFree = function(self)
 			local t = {}
 			--t = self:getSpaces()
 			table.move(self.spaces, 1, #self.spaces, 1, t)
 			--print(#t)
 			--print(t[2].space)
-			for i, v in pairs(t) do
-				--print(v.x)
-				if self:getCell((v.x * self.size) - self.size, (v.y * self.size) - self.size).space ~= "" then
+			--for i, v in pairs(self.spaces) do
+			--	print(v.space)
+			--end
+			--for i, v in pairs(t) do
+			for i = #t, 1, -1 do
+				local v = t[i]
+				--print(v.x .. " l " .. v.y)
+				--print(v.space)
+				if self:getCell(((v.x - 1) * self.size), ((v.y - 1) * self.size)).space ~= "" then
 					table.remove(t, i)
+					--print(t[i].x .. "l " .. t[i].y)
 				end
 			end
 			--print(#t)
@@ -99,6 +114,10 @@ function createGrid(size, win_width, win_height)
 		
 		getSpaces = function(self)
 			return self.spaces
-		end
+		end,
+		
+		gridConvert = function(self, coord)
+			return (coord - 1) * self.size
+		end,
 	}
 end
