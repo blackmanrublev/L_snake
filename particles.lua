@@ -42,7 +42,7 @@ function createParticle(x, y, speed, spread, number, size1, size2, lifetime, alp
 			self.particle:update(dt)
 			self.timer = self.timer + dt
 			if self.timer >= self.lifetime then
-				love.event.quit()
+				--love.event.quit()
 				self.finished = true
 			end
 			if self.fade == true then	--Fade out particles as they get closer to the end of their lifetime

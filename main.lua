@@ -22,6 +22,23 @@ local player = createSnake(0, 0, 15, cell_size)
 local mouse_x, mouse_y = love.mouse.getPosition()
 local win_width, win_height = love.window.getMode()
 
+
+local function createCircleTexture(radius, color)
+    local size = radius * 2 + 2  -- a little padding
+    local canvas = love.graphics.newCanvas(size, size)
+    love.graphics.setCanvas(canvas)
+    love.graphics.clear()  -- transparent background
+    love.graphics.setColor(color)
+    love.graphics.circle("fill", size/2, size/2, radius)
+	--love.graphics.rectangle("fill", size/2, size/2, size, size)
+    love.graphics.setColor(1, 1, 1, 1)  -- reset
+    love.graphics.setCanvas()
+    return canvas
+end
+
+local circle_texture = createCircleTexture(1, {1, 0.3, 0.3, 1})  -- white 16px circle
+--local ps = love.graphics.newParticleSystem(circleTexture, 10
+
 local game_state = { -- The different states of the game
     menu = true,    --When the player opens the game, it will show the menu by default
     game = false,
@@ -107,12 +124,14 @@ function love.load()
 		local a = createApple(((t[cell].world_x)) , (t[cell].world_y), 10, cell_size)
 		table.insert(APPLES, a)
 		grid:getCell(a.x, a.y).space = "apple"
+		--j:load()
 	end
 	spawnApple()
 	--BUTTONS.quit= createButton("QUIT", love.event.quit, nil, 100, 26)
 end
 
 function love.update(dt)
+	--j:update(dt)
 	profile.reset()
 	profile.start()
 	win_width, win_height = love.window.getMode()
@@ -120,38 +139,24 @@ function love.update(dt)
 	mouse_y = love.mouse.getY()
 	
 	local body = player:getBody()
-	--local bodyy = player:getBody()
-	--print(#body .. "s")
-	--print(body[#body].y)
-	--print(player.body[#player.body].y)
 	player:update(dt, space)
 	local count = 0
-	--print(#body)
-	--local t = grid:getFree()
-	--print(#t)
 	for i, v in pairs(body) do
-		--print(body[#body].x)
-		--print(v.y)
-		--if (v.x >= 0 and v.y >= 0) and (v.x < (grid:getGridTotal()/2)/10 and v.y < (grid:getGridTotal()/2)/10) then
 		if (v.x >= 0 and v.y >= 0) and (v.x < win_width and v.y < win_height) then
 			local spawn = true
 			if grid:getCell(v.x, v.y).space == "" then
 				grid:getCell(v.x, v.y).space = "snake"
-				--count = count + 1
 			end
 			if i == 1 then
-				--grid:getCell(v.x, v.y).space = "snake"
-				--print(v.x)
-				--print(grid:getCell(120, 20).space)
 				if grid:getCell(v.x, v.y).space == "apple" then
+					table.insert(PARTICLES, createParticle(v.x + cell_size/2, v.y + cell_size/2, 150, 360, math.random(10, 30), 1, 5, 0.5, 1, true, circle_texture))
+					PARTICLES[#PARTICLES]:load()
 					player:eatFood()
 					grid:getCell(v.x, v.y).space = "snake" 
 					APPLES = {}
 					spawnApple()
 				end
-				--print(grid:getCell(20, 20).y .. "d")
 			end
-			--grid:getCell()
 		end
 	end
 	
@@ -160,15 +165,6 @@ function love.update(dt)
 	local bodyy = player:getBody()
 	local body = player:getBody()
 	
-	--[[for i, v in pairs(bodyy) do
-		if grid:getCell(v.x, v.y).space == "" then
-			grid:getCell(v.x, v.y).space = "snake"
-			--count = count + 1
-		end
-	end]]
-	
-	
-	--if (cell.x >= 0 and cell.y >= 0) and (cell.x < (grid:getGridTotal()/2)/10 and cell.y < (grid:getGridTotal()/2)/10) then
 	local last = player:getLastCell()
 	if last.x ~= nil then
 		if grid:getCell(last.x, last.y) ~= nil and last.x <= win_width then
@@ -177,26 +173,14 @@ function love.update(dt)
 			grid:getCell(last.x, last.y).space = ""
 		end
 	end
-	if (body[#body].x >= 0 and body[#body].y >= 0) and (body[#body].x < win_width and body[#body].y < win_height) then
-		--local last = player:getLastCell()
-		--print(last.x)
-		--if grid:getCell(last.x, last.y).space ~= nil then
-			--grid:getCell(last.x, last.y).space = ""
-			--[[print(last.x .. "l" .. last.y)
-			print(player.body[#player.body].x .. "j" .. player.body[#player.body].y)
-			print(grid:getCell(last.x, last.y).x)]]
-		--[[if grid:getCell(body[#body].x, body[#body].y).space == "snake" then
-			grid:getCell(body[#body].x, body[#body].y).space = ""
-		end]]
-		--[[print(last.x .. "l")
-		print(player.body[#player.body].x .. "j")]]
-		--grid:getCell(last.x, last.y).space = ""
-		--[[if #body ~= #bodyy  then
-			grid:getCell(body[#body].x, body[#body].y).space = "snake"
-		end]]
-		--end
+	
+	
+	for i, v in pairs(PARTICLES) do
+		v:update(dt)
+		if v.finished == true then
+			table.remove(PARTICLES, i)
+		end
 	end
-	--end
 	
 	
 	
@@ -204,7 +188,9 @@ function love.update(dt)
 end
 
 function love.draw()
-	love.graphics.print(love.timer.getFPS())
+	--love.graphics.draw(circle_texture)
+	--love.graphics.print(love.timer.getFPS())
+	--love.graphics.print(collectgarbage("count"))
 	--love.graphics.print(#player.body)
 	--profile.reset()
 	profile.start()
@@ -212,6 +198,9 @@ function love.draw()
 		v:draw()
 	end
 	player:draw()
+	for i, v in pairs(PARTICLES) do
+		v:draw()
+	end
 	--grid:draw()	
 	profile.stop() 
 	--BUTTONS.quit:draw(win_width/2 - BUTTONS.quit:getWidth()/2, win_height/2 - BUTTONS.quit:getHeight()/2)

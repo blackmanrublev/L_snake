@@ -19,18 +19,15 @@ function createSnake(x, y, size, cell_size)
 		speed = 0.13,
 		x_tween = "",
 		y_tween = "",
+		temp = {},
+		tempp = {},
+		color = "green",
 		
 		load = function(self)
 			local x = 6 * self.cell_size
 			local y = 1 * self.cell_size
 			self.body = {
-				{x = x, y = y, size = self.size, draw_x = x, draw_y = y, x_tween = "", y_tween = "", size_tween = ""},
-				{x = x-(1*self.cell_size), y = y, size = self.size, draw_x = x-(1*self.cell_size), draw_y = y, x_tween = "", y_tween = ""},
-				--{x = 5 * self.cell_size, y = 1 * self.cell_size, size = self.size},
-				--{x = 4 * self.cell_size, y = 1 * self.cell_size, size = self.size},
-				--{x = 3 * self.cell_size, y = 1 * self.cell_size, size = self.size},
-				--{x = 2 * self.cell_size, y = 1 * self.cell_size, size = self.size},
-				--{x = 1 * self.cell_size, y = 1 * self.cell_size, size = self.size},
+				{x = x, y = y, size = self.size, draw_x = x, draw_y = y, draw_size = size, x_tween = "", y_tween = "", size_tween = ""},
 			}
 		end,
 		
@@ -38,15 +35,13 @@ function createSnake(x, y, size, cell_size)
 			self.timer = self.timer + dt
 				self.eat = false
 			if self.timer >= 0.13  then
-				self.last = {x = self.body[#self.body].x, y = self.body[#self.body].y}
+				self.last = {x = self.body[#self.body].x, y = self.body[#self.body].y, size = self.body[#self.body].size}
 				if #self.direction_queue > 0 then
 					self.direction = table.remove(self.direction_queue, 1)
 				end
 				
 				self:move(space)
 				self.timer = 0
-				--print(self.last.x)
-				--print(self.body[#self.body].x)
 			end
 			self:tween(dt)
 		end,
@@ -59,6 +54,10 @@ function createSnake(x, y, size, cell_size)
 				
 				if v.draw_y ~= v.y and v.y_tween == "" then
 					v.y_tween = tween.new(self.speed, v, {draw_y = v.y}, "outCubic")
+				end
+				
+				if v.draw_size ~= v.size and v.size_tween == "" then
+					v.size_tween = tween.new(self.speed, v, {draw_size = v.size}, "inCubic")
 				end
 				
 				if v.x_tween ~= "" then
@@ -74,32 +73,47 @@ function createSnake(x, y, size, cell_size)
 						v.y_tween = ""
 					end
 				end
+				
+				if v.size_tween ~= "" then
+					local complete = v.size_tween:update(dt)
+					if complete then
+						v.size_tween = ""
+					end
+				end
 			end
 		
 		end,
 		
 		draw = function(self)
 			for i, v in pairs(self.body) do
-				--local x =	(v.x + self.cell_size/2)  - v.size/2
-				--local y = (v.y  + self.cell_size/2 ) - v.size/2
+				if i % 2 == 1 then
+					love.graphics.setColor(0, 1, 0, 1)
+				else
+					love.graphics.setColor(0, 0.3, 0, 1)
+				end
+				--[[if self.color == "green" then
+					love.graphics.setColor(0, 1, 0, 1)
+					self.color = "dark green"
+				elseif self.color == "dark green" then
+					love.graphics.setColor(0, 0.5, 0, 1)
+					self.color = "green"
+				end]]
 				if i == 1 then
 					local x =	(v.draw_x + self.cell_size/2)
 					local y = (v.draw_y  + self.cell_size/2 )
-					love.graphics.circle("fill", x, y, v.size/2)
+					love.graphics.circle("fill", x, y, v.draw_size/2)
 				else
-					local x =	(v.draw_x + self.cell_size/2)  - v.size/2
-					local y = (v.draw_y  + self.cell_size/2 ) - v.size/2
-					love.graphics.rectangle("fill", x, y, v.size, v.size)
+					local x =	(v.draw_x + self.cell_size/2)  - v.draw_size/2
+					local y = (v.draw_y  + self.cell_size/2 ) - v.draw_size/2
+					love.graphics.rectangle("fill", x, y, v.draw_size, v.draw_size)
 				end
 			end
+			love.graphics.setColor(1, 1, 1, 1)
 		end,
 		
 		control = function(self, key)
-			--print(key)
-			--print(#self.direction_queue)
 			if key == "l" then
 				self:eatFood()
-				--self.eat = false
 			end
 			
 			if #self.direction_queue ~= 0 then
@@ -126,85 +140,56 @@ function createSnake(x, y, size, cell_size)
 		end,
 	
 		move = function(self, space)
-			local temp = {}
-			local tempp = {}
-			--[[local t = {}
-			local tt = {}
-			
-			for i, v in pairs(self.body) do
-				local ttt = {}
-				
-				if self.direction == "right" then
-					ttt = {x = self.cell_size, y = 0}
-				elseif self.direction == "left" then
-					ttt = {x = - self.cell_size, y = 0}
-				elseif self.direction== "up" then
-					ttt = {x = 0, y = - self.cell_size}
-				elseif self.direction == "down" then
-					ttt = {x = 0, y = self.cell_size}
-				end
-			
-				if i == 1 then
-					t = {x = v.x, y = v.y, size = v.size, draw_x = v.draw_x, draw_y = v.draw_y, x_tween = "", y_tween = ""}
-						v.size = self.size
-					self.eat = false
-					v.x = v.x + ttt.x
-					v.y = v.y + ttt.y
-				else
-					tt = self.body[i]
-					self.body[i] = t
-					print(self.body[i].x, 1)
-					self.body[i].draw_x = tt.draw_x
-					self.body[i].draw_y = tt.draw_y
-					t = tt
-					print(self.body[i].x, 1)
-				end
-				
-				
-			end ]]
-			--[[table.insert(self.body, self.body[1])
-			t = self.body[1]
-			if self.direction == "right" then
-				--ttt = {x = self.cell_size, y = 0}
-				t.x = t.x + self.cell_size
-			elseif self.direction == "left" then
-				--ttt = {x = - self.cell_size, y = 0}
-				t.x = t.x - self.cell_size
-			elseif self.direction== "up" then
-				--ttt = {x = 0, y = - self.cell_size}
-				t.y = t.y - self.cell_size
-			elseif self.direction == "down" then
-				--ttt = {x = 0, y = self.cell_size}
-				t.y = t.y + self.cell_size
-			end
-			if self.eat == false then
-				table.remove(self.body, #self.body)
-			end]]
 			for i, v in pairs(self.body) do
 				if i == 1 then
-					temp = {x = v.x, y = v.y, size = v.size, draw_x = v.draw_x, draw_y = v.draw_y, x_tween = "", y_tween = ""}
+					--self.temp = {x = v.x, y = v.y, size = v.size, draw_x = v.draw_x, draw_y = v.draw_y, draw_size = v.draw_size, x_tween = "", y_tween = "", size_tween = ""}
+					self.temp.x = v.x
+					self.temp.y = v.y
+					self.temp.size = v.size
+					self.temp.draw_x = v.draw_x
+					self.temp.draw_y = v.draw_y
+					self.temp.draw_size = v.draw_size
+					self.temp.x_tween = ""
+					self.temp.y_tween = ""
+					self.temp.size_tween = ""
 					local t = v
 					if self.direction == "right" then
-						--ttt = {x = self.cell_size, y = 0}
 						t.x = t.x + self.cell_size
 					elseif self.direction == "left" then
-						--ttt = {x = - self.cell_size, y = 0}
 						t.x = t.x - self.cell_size
 					elseif self.direction== "up" then
-						--ttt = {x = 0, y = - self.cell_size}
 						t.y = t.y - self.cell_size
 					elseif self.direction == "down" then
-						--ttt = {x = 0, y = self.cell_size}
 						t.y = t.y + self.cell_size
 					end
 					v.size = self.size
 					self.eat = false
 				else
-					tempp = {x = v.x, y = v.y, size = v.size, draw_x = v.draw_x, draw_y = v.draw_y, x_tween = "", y_tween = ""}
-					v.x = temp.x
-					v.y = temp.y
-					v.size = temp.size
-					temp = tempp
+					--self.tempp = {x_tween = "", y_tween = "", size_tween = ""}
+					self.tempp.x = v.x
+					self.tempp.y = v.y
+					self.tempp.size = v.size
+					self.tempp.draw_x = v.draw_x
+					self.tempp.draw_y = v.draw_y
+					self.tempp.draw_size = v.draw_size
+					self.tempp.x_tween = ""
+					self.tempp.y_tween = ""
+					self.tempp.size_tween = ""
+					
+					v.x = self.temp.x
+					v.y = self.temp.y
+					v.size = self.temp.size
+					
+					self.temp.x = self.tempp.x
+					self.temp.y = self.tempp.y
+					self.temp.size = self.tempp.size
+					self.temp.draw_x = self.tempp.draw_x
+					self.temp.draw_y = self.tempp.draw_y
+					self.temp.draw_size = self.tempp.draw_size
+					self.temp.x_tween = self.tempp.x_tween
+					self.temp.y_tween = self.tempp.y_tween
+					self.temp.size_tween = self.tempp.size_tween
+					--self.tempp = {}
 				end
 			end
 		end,
@@ -215,12 +200,8 @@ function createSnake(x, y, size, cell_size)
 		
 		eatFood = function(self)
 			self.eat = true
-			--self.last = {x = self.body[#self.body].x, y = self.body[#self.body].y}
-			--print(self.last.y)
-			--table.insert(self.body, #self.body + 1, {x = self.body[#self.body].x, y = self.body[#self.body].y, size = self.body[#self.body].size})
-			table.insert(self.body, #self.body + 1, {x = self.last.x, y = self.last.y, size = self.body[#self.body].size, draw_x = self.last.x, draw_y = self.last.y, x_tween = "", y_tween = ""})
-			--print(self.body[#self.body].y)
-			self.body[1].size = cell_size
+			table.insert(self.body, #self.body + 1, {x = self.last.x, y = self.last.y, size = self.body[#self.body].size, draw_x = self.last.x, draw_y = self.last.y, draw_size = self.last.size,x_tween = "", y_tween = "", size_tween = ""})
+			self.body[1].size = self.cell_size
 			self.last = {}
 		end,
 		

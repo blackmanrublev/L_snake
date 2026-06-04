@@ -13,9 +13,11 @@ function createApple(x, y, size, cell_size)
 		end,
 		
 		draw = function(self)
+			love.graphics.setColor(1, 0.3, 0.3)
 			local x =	(self.x + self.cell_size/2)  - self.size/2
 			local y = (self.y  + self.cell_size/2 ) - self.size/2
 			love.graphics.rectangle("fill", x, y, self.size, self.size)
+			love.graphics.setColor(1, 1, 1)
 		end,
 		
 		kill = function(self)
