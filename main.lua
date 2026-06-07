@@ -190,7 +190,7 @@ end
 function love.draw()
 	--love.graphics.draw(circle_texture)
 	--love.graphics.print(love.timer.getFPS())
-	--love.graphics.print(collectgarbage("count"))
+	love.graphics.print(collectgarbage("count"))
 	--love.graphics.print(#player.body)
 	--profile.reset()
 	profile.start()

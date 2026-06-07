@@ -17,10 +17,6 @@ function createSnake(x, y, size, cell_size)
 		timer = 0,
 		last = {},
 		speed = 0.13,
-		x_tween = "",
-		y_tween = "",
-		temp = {},
-		tempp = {},
 		color = "green",
 		
 		load = function(self)
@@ -91,13 +87,6 @@ function createSnake(x, y, size, cell_size)
 				else
 					love.graphics.setColor(0, 0.3, 0, 1)
 				end
-				--[[if self.color == "green" then
-					love.graphics.setColor(0, 1, 0, 1)
-					self.color = "dark green"
-				elseif self.color == "dark green" then
-					love.graphics.setColor(0, 0.5, 0, 1)
-					self.color = "green"
-				end]]
 				if i == 1 then
 					local x =	(v.draw_x + self.cell_size/2)
 					local y = (v.draw_y  + self.cell_size/2 )
@@ -140,18 +129,9 @@ function createSnake(x, y, size, cell_size)
 		end,
 	
 		move = function(self, space)
-			for i, v in pairs(self.body) do
+			for i = #self.body, 1, -1 do
+				local v = self.body[i]
 				if i == 1 then
-					--self.temp = {x = v.x, y = v.y, size = v.size, draw_x = v.draw_x, draw_y = v.draw_y, draw_size = v.draw_size, x_tween = "", y_tween = "", size_tween = ""}
-					self.temp.x = v.x
-					self.temp.y = v.y
-					self.temp.size = v.size
-					self.temp.draw_x = v.draw_x
-					self.temp.draw_y = v.draw_y
-					self.temp.draw_size = v.draw_size
-					self.temp.x_tween = ""
-					self.temp.y_tween = ""
-					self.temp.size_tween = ""
 					local t = v
 					if self.direction == "right" then
 						t.x = t.x + self.cell_size
@@ -165,31 +145,9 @@ function createSnake(x, y, size, cell_size)
 					v.size = self.size
 					self.eat = false
 				else
-					--self.tempp = {x_tween = "", y_tween = "", size_tween = ""}
-					self.tempp.x = v.x
-					self.tempp.y = v.y
-					self.tempp.size = v.size
-					self.tempp.draw_x = v.draw_x
-					self.tempp.draw_y = v.draw_y
-					self.tempp.draw_size = v.draw_size
-					self.tempp.x_tween = ""
-					self.tempp.y_tween = ""
-					self.tempp.size_tween = ""
-					
-					v.x = self.temp.x
-					v.y = self.temp.y
-					v.size = self.temp.size
-					
-					self.temp.x = self.tempp.x
-					self.temp.y = self.tempp.y
-					self.temp.size = self.tempp.size
-					self.temp.draw_x = self.tempp.draw_x
-					self.temp.draw_y = self.tempp.draw_y
-					self.temp.draw_size = self.tempp.draw_size
-					self.temp.x_tween = self.tempp.x_tween
-					self.temp.y_tween = self.tempp.y_tween
-					self.temp.size_tween = self.tempp.size_tween
-					--self.tempp = {}
+					v.x = self.body[i-1].x
+					v.y = self.body[i-1].y
+					v.size = self.body[i-1].size
 				end
 			end
 		end,
