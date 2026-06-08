@@ -87,25 +87,27 @@ function createGrid(size, win_width, win_height)
 		
 		getFree = function(self)
 			local t = {}
-			--t = self:getSpaces()
-			table.move(self.spaces, 1, #self.spaces, 1, t)
-			--print(#t)
-			--print(t[2].space)
-			--for i, v in pairs(self.spaces) do
-			--	print(v.space)
-			--end
-			--for i, v in pairs(t) do
-			for i = #t, 1, -1 do
-				local v = t[i]
-				--print(v.x .. " l " .. v.y)
-				--print(v.space)
-				if self:getCell(((v.x - 1) * self.size), ((v.y - 1) * self.size)).space ~= "" then
-					table.remove(t, i)
-					--print(t[i].x .. "l " .. t[i].y)
+			for i, v in pairs(self.spaces) do
+				if v.space == "" then
+					table.insert(t, v)
 				end
 			end
-			--print(#t)
 			return t
+		end,
+		
+		getRandomFree = function(self)
+			local count = 15 + math.ceil(math.log(self:getGridTotal()))
+			local grid_index = 0
+			for i = 1, count do
+				grid_index = math.random(self:getGridTotal())
+				if self.spaces[grid_index].space == "" then
+					return self.spaces[grid_index]
+				end
+			end
+			
+			local t = self:getFree()
+			print(fuh)
+			return t[math.random(#t)]
 		end,
 		
 		getGridTotal = function(self)

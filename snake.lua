@@ -31,7 +31,9 @@ function createSnake(x, y, size, cell_size)
 			self.timer = self.timer + dt
 				self.eat = false
 			if self.timer >= 0.13  then
-				self.last = {x = self.body[#self.body].x, y = self.body[#self.body].y, size = self.body[#self.body].size}
+				self.last.x = self.body[#self.body].x
+				self.last.y = self.body[#self.body].y
+				self.last.size = self.body[#self.body].size
 				if #self.direction_queue > 0 then
 					self.direction = table.remove(self.direction_queue, 1)
 				end
@@ -160,13 +162,11 @@ function createSnake(x, y, size, cell_size)
 			self.eat = true
 			table.insert(self.body, #self.body + 1, {x = self.last.x, y = self.last.y, size = self.body[#self.body].size, draw_x = self.last.x, draw_y = self.last.y, draw_size = self.last.size,x_tween = "", y_tween = "", size_tween = ""})
 			self.body[1].size = self.cell_size
-			self.last = {}
+			self.last.x = nil
 		end,
 		
 		getBody = function(self)
-			local t = {}
-			table.move(self.body, 1, #self.body, 1, t)
-			return t
+			return self.body
 		end,
 		
 		getLastCell = function(self)

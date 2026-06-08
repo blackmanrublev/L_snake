@@ -125,25 +125,27 @@ end
 -- @tparam[opt] number limit Maximum number of rows
 function profile.query(limit)
   local t = {}
+  local total_time = 0
   for f, n in pairs(_ncalls) do
     if n > 0 then
       t[#t + 1] = f
     end
   end
   table.sort(t, profile.comp)
-  if limit then
-    while #t > limit do
-      table.remove(t)
-    end
-  end
   for i, f in ipairs(t) do
     local dt = 0
     if _tcalled[f] then
       dt = clock() - _tcalled[f]
     end
     t[i] = { i, _labeled[f] or '?', _ncalls[f], _telapsed[f] + dt, _defined[f] }
+    total_time = total_time + _telapsed[f] + dt
   end
-  return t
+  if limit then
+    while #t > limit do
+      table.remove(t)
+    end
+  end
+  return t, total_time
 end
 
 local cols = { 3, 29, 11, 24, 32 }
@@ -152,7 +154,7 @@ local cols = { 3, 29, 11, 24, 32 }
 -- @tparam[opt] number limit Maximum number of rows
 function profile.report(n)
   local out = {}
-  local report = profile.query(n)
+  local report, total_time = profile.query(n)
   for i, row in ipairs(report) do
     for j = 1, 5 do
       local s = row[j]
@@ -175,7 +177,7 @@ function profile.report(n)
   if #out > 0 then
     sz = sz..' | '..table.concat(out, ' | \n | ')..' | \n'
   end
-  return '\n'..sz..row
+  return '\n'..sz..row.."\nTotal Profiled Time = "..total_time * 1000 .." ms\n"
 end
 
 -- store all internal profiler functions
