@@ -1,6 +1,7 @@
 ---@param size number
 ---@param win_width number
 ---@param win_height number
+---@return table
 function createGrid(size, win_width, win_height)
 	return{
 		size = size,
@@ -30,8 +31,8 @@ function createGrid(size, win_width, win_height)
 		---@param mouse_y number
 		draw = function(self, mouse_x, mouse_y)
 			for i, v in pairs(self.spaces) do
-				love.graphics.print(v.space, (v.x * self.size) - self.size, (v.y * self.size) - self.size)
-				love.graphics.rectangle("line", (v.x * self.size) - self.size, (v.y * self.size) - self.size, size, size)
+				love.graphics.print(v.space, v.world_x, v.world_y)
+				love.graphics.rectangle("line", v.world_x, v.world_y, size, size)
 			end
 			
 			if mouse_x ~= nil and mouse_y ~= nil then
@@ -52,6 +53,7 @@ function createGrid(size, win_width, win_height)
 		
 		---@param x number
 		---@param y number
+		---@return number
 		getIndex = function(self, x, y)
 			return ((x / self.size) + 1) + ((y / self.size) * self.win_width / self.size)
 		end,
@@ -59,6 +61,7 @@ function createGrid(size, win_width, win_height)
 		---@param x number
 		---@param y number
 		---@param mouse boolean
+		---@return table
 		getCell = function(self, x, y, mouse)
 			local i = 0
 			
@@ -74,6 +77,7 @@ function createGrid(size, win_width, win_height)
 		
 		---@param x number
 		---@param y number
+		---@return table
 		convertMouse = function(self, x, y)
 			local mouse_x = math.floor(x / self.size) * self.size
 			local mouse_y = math.floor(y / self.size) * self.size
@@ -85,6 +89,7 @@ function createGrid(size, win_width, win_height)
 			
 		end,
 		
+		---@return table
 		getFree = function(self)
 			local t = {}
 			for i, v in pairs(self.spaces) do
@@ -95,6 +100,7 @@ function createGrid(size, win_width, win_height)
 			return t
 		end,
 		
+		---@return table
 		getRandomFree = function(self)
 			local count = 15 + math.ceil(math.log(self:getGridTotal()))
 			local grid_index = 0
@@ -110,14 +116,18 @@ function createGrid(size, win_width, win_height)
 			return t[math.random(#t)]
 		end,
 		
+		---@return number
 		getGridTotal = function(self)
 			return #self.spaces
 		end,
 		
+		---@return number
 		getSpaces = function(self)
 			return self.spaces
 		end,
 		
+		---@param coord number
+		---@return number
 		gridConvert = function(self, coord)
 			return (coord - 1) * self.size
 		end,

@@ -1,4 +1,9 @@
 local tween = require "tween"
+---@param x number
+---@param y number
+---@param size number
+---@param cell_size number
+---@return table
 function createSnake(x, y, size, cell_size)
 	return{
 		x = x,
@@ -27,6 +32,8 @@ function createSnake(x, y, size, cell_size)
 			}
 		end,
 		
+		---@param dt number
+		---@param space table
 		update = function(self, dt, space)
 			self.timer = self.timer + dt
 				self.eat = false
@@ -38,12 +45,13 @@ function createSnake(x, y, size, cell_size)
 					self.direction = table.remove(self.direction_queue, 1)
 				end
 				
-				self:move(space)
+				self:move()
 				self.timer = 0
 			end
 			self:tween(dt)
 		end,
 		
+		---@param dt number
 		tween = function(self, dt)
 			for i, v in pairs(self.body) do
 				if v.draw_x ~= v.x and v.x_tween == "" then
@@ -101,7 +109,8 @@ function createSnake(x, y, size, cell_size)
 			end
 			love.graphics.setColor(1, 1, 1, 1)
 		end,
-		
+
+		---@param key string
 		control = function(self, key)
 			if key == "l" then
 				self:eatFood()
@@ -130,7 +139,7 @@ function createSnake(x, y, size, cell_size)
 			end
 		end,
 	
-		move = function(self, space)
+		move = function(self)
 			for i = #self.body, 1, -1 do
 				local v = self.body[i]
 				if i == 1 then
@@ -165,10 +174,13 @@ function createSnake(x, y, size, cell_size)
 			self.last.x = nil
 		end,
 		
+
+		---@return table
 		getBody = function(self)
 			return self.body
 		end,
 		
+		---@return table
 		getLastCell = function(self)
 			return self.last
 		end,

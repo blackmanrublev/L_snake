@@ -34,6 +34,7 @@ data = {
 	end,
 
 	---@param t table
+	---@return string
 	pack = function(t, drop, indent)
 		assert(type(t) == "table", "Can only TSerial.pack tables.")
 		local s, indent = "{"..(indent and "\n" or ""), indent and math.max(type(indent)=="number" and indent or 0,0)
@@ -61,6 +62,7 @@ data = {
 	end,
 
 	---@param s string
+	---@return table
 	unpack = function(s)
 		assert(type(s) == "string", "Can only TSerial.unpack strings.")
 		load("tab = "..tostring(s))()

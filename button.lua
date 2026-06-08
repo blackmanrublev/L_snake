@@ -3,6 +3,7 @@
 ---@param param any
 ---@param width number
 ---@param height number
+---@return table
 function createButton(text, func, param, width, height)
     return{
         width = width or 100,

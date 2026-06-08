@@ -1,3 +1,7 @@
+---@param x number
+---@param y number
+---@param size number
+---@param cell_size number
 function createApple(x, y, size, cell_size)
 	return{
 		x = x,
