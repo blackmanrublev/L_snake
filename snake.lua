@@ -1,9 +1,38 @@
 local tween = require "tween"
+
+---@class Snake
+---@field x number
+---@field y number
+---@field size number
+---@field cell_size number
+---@field draw_x number
+---@field draw_y number
+---@field body table
+---@field direction string
+---@field direction_queue table
+---@field eat boolean
+---@field alive boolean
+---@field timer number
+---@field last table
+---@field speed number
+---@field lifetime number
+---@field color string
+---@field load fun(self: Snake)
+---@field update fun(self: Snake, dt: number)
+---@field tween fun(self: Snake, dt: number)
+---@field draw fun(self: Snake)
+---@field control fun(self: Snake, key: string)
+---@field move fun(self: Snake)
+---@field kill fun(self: Snake)
+---@field eatFood fun(self: Snake)
+---@field getBody fun(self: Snake): table
+---@field getLastCell fun(self: Snake): table
+
 ---@param x number
 ---@param y number
 ---@param size number
 ---@param cell_size number
----@return table
+---@return Snake
 function createSnake(x, y, size, cell_size)
 	return{
 		x = x,
@@ -22,8 +51,10 @@ function createSnake(x, y, size, cell_size)
 		timer = 0,
 		last = {},
 		speed = 0.13,
+		lifetime = 0.13,
 		color = "green",
 		
+		---@param self Snake
 		load = function(self)
 			local x = 6 * self.cell_size
 			local y = 1 * self.cell_size
@@ -32,12 +63,12 @@ function createSnake(x, y, size, cell_size)
 			}
 		end,
 		
+		---@param self Snake
 		---@param dt number
-		---@param space table
-		update = function(self, dt, space)
+		update = function(self, dt)
 			self.timer = self.timer + dt
 				self.eat = false
-			if self.timer >= 0.13  then
+			if self.timer >= self.lifetime then
 				self.last.x = self.body[#self.body].x
 				self.last.y = self.body[#self.body].y
 				self.last.size = self.body[#self.body].size
@@ -51,6 +82,7 @@ function createSnake(x, y, size, cell_size)
 			self:tween(dt)
 		end,
 		
+		---@param self Snake
 		---@param dt number
 		tween = function(self, dt)
 			for i, v in pairs(self.body) do
@@ -90,6 +122,7 @@ function createSnake(x, y, size, cell_size)
 		
 		end,
 		
+		---@param self Snake
 		draw = function(self)
 			for i, v in pairs(self.body) do
 				if i % 2 == 1 then
@@ -110,8 +143,9 @@ function createSnake(x, y, size, cell_size)
 			love.graphics.setColor(1, 1, 1, 1)
 		end,
 
+		---@param self Snake
 		---@param key string
-		control = function(self, key)
+		control = function(self, key)	--Handle player input
 			if key == "l" then
 				self:eatFood()
 			end
@@ -139,7 +173,8 @@ function createSnake(x, y, size, cell_size)
 			end
 		end,
 	
-		move = function(self)
+		---@param self Snake
+		move = function(self)	--Move snake
 			for i = #self.body, 1, -1 do
 				local v = self.body[i]
 				if i == 1 then
@@ -163,11 +198,13 @@ function createSnake(x, y, size, cell_size)
 			end
 		end,
 		
-		kill = function(self)
+		---@param self Snake
+		kill = function(self)	--Kill snake
 			self.alive = false
 		end,
 		
-		eatFood = function(self)
+		---@param self Snake
+		eatFood = function(self)	--Eat food
 			self.eat = true
 			table.insert(self.body, #self.body + 1, {x = self.last.x, y = self.last.y, size = self.body[#self.body].size, draw_x = self.last.x, draw_y = self.last.y, draw_size = self.last.size,x_tween = "", y_tween = "", size_tween = ""})
 			self.body[1].size = self.cell_size
@@ -175,13 +212,15 @@ function createSnake(x, y, size, cell_size)
 		end,
 		
 
+		---@param self Snake
 		---@return table
-		getBody = function(self)
+		getBody = function(self)	--Get snake's body table
 			return self.body
 		end,
 		
+		---@param self Snake
 		---@return table
-		getLastCell = function(self)
+		getLastCell = function(self)	--Get the last cell of the snake
 			return self.last
 		end,
 	}

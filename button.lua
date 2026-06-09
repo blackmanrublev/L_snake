@@ -1,9 +1,25 @@
+---@class Button
+---@field width number
+---@field height number
+---@field func function
+---@field param any
+---@field text string
+---@field button_x number
+---@field button_y number
+---@field font any
+---@field text_x number
+---@field text_y number
+---@field checkPressed fun(self: Button, mouse_x: number, mouse_y: number)
+---@field draw fun(self: Button, button_x: number, button_y: number)
+---@field getWidth fun(self: Button): number
+---@field getHeight fun(self: Button): number
+
 ---@param text string
 ---@param func function
 ---@param param any
 ---@param width number
 ---@param height number
----@return table
+---@return Button
 function createButton(text, func, param, width, height)
     return{
         width = width or 100,
@@ -19,6 +35,7 @@ function createButton(text, func, param, width, height)
         text_x = 0,
         text_y = 0,
 
+        ---@param self Button
         ---@param mouse_x number
         ---@param mouse_y number
         checkPressed = function(self, mouse_x, mouse_y)
@@ -29,6 +46,7 @@ function createButton(text, func, param, width, height)
 			end
         end,
 
+        ---@param self Button
         ---@param button_x number
         ---@param button_y number
         draw = function(self, button_x, button_y)
@@ -61,11 +79,13 @@ function createButton(text, func, param, width, height)
 
         end,
 		
+        ---@param self Button
         ---@return number
 		getWidth = function(self)
 			return self.width
 		end,
 		
+        ---@param self Button
         ---@return number
 		getHeight = function(self)
 			return self.height

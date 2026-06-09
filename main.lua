@@ -14,7 +14,6 @@ local PARTICLES = {}
 local BUTTONS = {}
 local APPLES = {}
 local grid = {}
-local empty_spaces = {}
 local cell_size = 20
 local player = createSnake(0, 0, 15, cell_size)
 
@@ -64,9 +63,8 @@ function love.load()
     reset()
 	function spawnApple()
 		local space = grid:getRandomFree()
-		local a = ""
 		if space then
-			a = createApple(((space.world_x)) , (space.world_y), 10, cell_size)
+			local a = createApple(((space.world_x)) , (space.world_y), 10, cell_size)
 			table.insert(APPLES, a)
 			grid:getCell(a.x, a.y).space = "apple"
 		end
@@ -77,15 +75,14 @@ function love.load()
 end
 
 function love.update(dt)
+	mouse_x, mouse_y = love.mouse.getPosition()
+	
 	if game_state == "game" then
 		profile.reset()
 		profile.start()
-		win_width, win_height = love.window.getMode()
-		mouse_x = love.mouse.getX()
-		mouse_y = love.mouse.getY()
 		
 		local body = player:getBody()
-		player:update(dt, space)
+		player:update(dt)
 		
 		for i, v in pairs(body) do
 			if (v.x >= 0 and v.y >= 0) and (v.x < win_width and v.y < win_height) then
