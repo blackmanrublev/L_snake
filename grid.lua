@@ -1,10 +1,12 @@
 ---@class Grid
 ---@field size number
----@field win_width number
----@field win_height number
+---@field width number
+---@field height number
 ---@field spaces table
+--- Create the grid and populate the spaces table with the coordinates of each cell
 ---@field load fun(self: Grid)
----@field draw fun(self: Grid, mouse_x: number, mouse_y: number)
+--- Draw the grid and the contents of each cell. If mouse_x and mouse_y are provided, also draw a highlight around the cell the mouse is currently over.
+---@field draw fun(self: Grid, mouse_x?: number, mouse_y?: number)
 --- Get the index of the grid cell at a specific coordinate
 ---@field getIndex fun(self: Grid, x: number, y: number): number
 --- Get the grid cell at a specific coordinate
@@ -24,20 +26,20 @@
 ---@field convertGridToWorld fun(self: Grid, coord: number): number
 
 ---@param size number
----@param win_width number
----@param win_height number
+---@param width number
+---@param height number
 ---@return Grid
-function createGrid(size, win_width, win_height)
+function createGrid(size, width, height)
 	return{
 		size = size,
-		win_width = win_width,
-		win_height = win_height,
+		width = width,
+		height = height,
 		spaces = {},
 
 		---@param self Grid
 		load = function(self)
-			local grid_x_count = self.win_width/self.size
-			local grid_y_count = self.win_height/self.size
+			local grid_x_count = self.width/self.size
+			local grid_y_count = self.height/self.size
 			local t = {}
 			
 			for grid_y = 1, grid_y_count do
@@ -50,8 +52,8 @@ function createGrid(size, win_width, win_height)
 		end,
 		
 		---@param self Grid
-		---@param mouse_x number
-		---@param mouse_y number
+		---@param mouse_x? number
+		---@param mouse_y? number
 		draw = function(self, mouse_x, mouse_y)
 			for i, v in pairs(self.spaces) do
 				love.graphics.print(v.space, v.world_x, v.world_y)
@@ -77,8 +79,8 @@ function createGrid(size, win_width, win_height)
 		---@param x number
 		---@param y number
 		---@return number
-		getIndex = function(self, x, y)	--Get the index of the grid cell at a specific coordinate
-			return ((x / self.size) + 1) + ((y / self.size) * self.win_width / self.size)
+		getIndex = function(self, x, y)	--Get the index of the grid cell using its coordinates
+			return ((x / self.size) + 1) + ((y / self.size) * self.width / self.size)
 		end,
 		
 		---@param self Grid
@@ -88,6 +90,9 @@ function createGrid(size, win_width, win_height)
 		---@return table
 		getCell = function(self, x, y, mouse)	--Get the grid cell at a specific coordinate, if mouse is true, snap the coordinates to the grid
 			local i = 0
+			if x >= self.width or y >= self.height or x < 0 or y < 0 then
+				return nil
+			end
 			
 			if mouse == true then
 				local t = self:convertMouseToGrid(x, y)

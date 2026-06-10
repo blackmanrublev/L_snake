@@ -8,18 +8,25 @@ require "functions"
 require "snake"
 require "apple"
 
-local scale = 1
-local cam = camera()
-local PARTICLES = {}
-local BUTTONS = {}
-local APPLES = {}
-local grid = {}
-local cell_size = 20
-local player = createSnake(0, 0, 15, cell_size)
-
-
 local mouse_x, mouse_y = love.mouse.getPosition()
 local win_width, win_height = love.window.getMode()
+
+local scale = 1
+local cell_size = 20
+local cam = camera()
+local print_report = true
+---@type Particle[]
+local PARTICLES = {}
+---@type Button[]
+local BUTTONS = {}
+---@type Apple[]
+local APPLES = {}
+---@type Grid
+local grid = createGrid(cell_size, win_width, win_height)
+---@type Snake
+local player = createSnake(0, 0, cell_size - cell_size/4, cell_size)
+
+
 
 
 local function createCircleTexture(radius, color)
@@ -35,7 +42,7 @@ local function createCircleTexture(radius, color)
     return canvas
 end
 
-local circle_texture = createCircleTexture(1, {1, 0.3, 0.3, 1})
+local circle_texture = createCircleTexture(cell_size/20, {1, 0.3, 0.3, 1})
 
 local game_state = "game"
 
@@ -50,7 +57,6 @@ end
 function love.load()
 	profile.start()
 	player:load()
-	grid = createGrid(cell_size, win_width, win_height)
 	grid:load()
     function reset()
 		for i, v in pairs(player:getBody()) do
@@ -64,40 +70,46 @@ function love.load()
 	function spawnApple()
 		local space = grid:getRandomFree()
 		if space then
-			local a = createApple(((space.world_x)) , (space.world_y), 10, cell_size)
+			local a = createApple(((space.world_x)) , (space.world_y), cell_size - cell_size/2, cell_size)
 			table.insert(APPLES, a)
 			grid:getCell(a.x, a.y).space = "apple"
 		end
 	end
 	spawnApple()
 	profile.stop()
-	print(profile.report())
 end
 
 function love.update(dt)
+	if print_report then
+		print(profile.report())
+		print_report = false
+	end
+	
 	mouse_x, mouse_y = love.mouse.getPosition()
 	
+	profile.reset()
+	profile.start()
+	
 	if game_state == "game" then
-		profile.reset()
-		profile.start()
 		
 		local body = player:getBody()
 		player:update(dt)
 		
 		for i, v in pairs(body) do
-			if (v.x >= 0 and v.y >= 0) and (v.x < win_width and v.y < win_height) then
-				if grid:getCell(v.x, v.y).space == "" then
-					grid:getCell(v.x, v.y).space = "snake"
+			local cell = grid:getCell(v.x, v.y)
+			if cell then
+				if cell.space == "" then
+					cell.space = "snake"
 				end
 				if i == 1 then
-					if grid:getCell(v.x, v.y).space == "apple" then
-						table.insert(PARTICLES, createParticle(v.x + cell_size/2, v.y + cell_size/2, 150, 360, math.random(10, 30), 1, 5, 0.5, 1, true, circle_texture))
+					if cell.space == "apple" then
+						table.insert(PARTICLES, createParticle(v.x + cell_size/2, v.y + cell_size/2, (cell_size/20) * 150, 360, math.random(10, 30), 1, 5, 0.5, 1, true, circle_texture))
 						PARTICLES[#PARTICLES]:load()
 						player:eatFood()
-						grid:getCell(v.x, v.y).space = "snake" 
+						cell.space = "snake" 
 						table.remove(APPLES, 1)
 						spawnApple()
-						print(profile.report())
+						print_report = true
 					end
 				end
 			end
@@ -118,13 +130,14 @@ function love.update(dt)
 			end
 		end
 		
-		
-		
 		profile.stop()
 	end
 end
 
 function love.draw()
+	
+	profile.start()
+	
 	if game_state == "game" then
 		--love.graphics.draw(circle_texture)
 		love.graphics.print(love.timer.getFPS())
@@ -140,4 +153,6 @@ function love.draw()
 		end
 		--grid:draw()	
 	end
+	
+	profile.stop()
 end
