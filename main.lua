@@ -77,11 +77,9 @@ function love.load()
 	end
 	spawnApple()
 	
-	-- Runninglove.graphics newParticleSystem() for the the first time when running the game can sometimes cause the game to freez while it's creating the particle system.activate()
-	-- These three lines cause the freeze to happen while the game is loading so it doesn't happen while the game is running
+	-- Create particle emitter during loading because the game would freeze if it were created while it was running
 	table.insert(PARTICLES, createParticle(-1000, -1000, (cell_size/20) * 150, 360, math.random(10, 30), (cell_size/20) * 1, (cell_size/20) * 5, 0.5, 1, true, circle_texture))
 	PARTICLES[#PARTICLES]:load()
-	table.remove(PARTICLES, 1)
 	
 	profile.stop()
 end
@@ -110,8 +108,8 @@ function love.update(dt)
 				end
 				if i == 1 then
 					if cell.space == "apple" then
-						table.insert(PARTICLES, createParticle(v.x + cell_size/2, v.y + cell_size/2, (cell_size/20) * 150, 360, math.random(10, 30), (cell_size/20) * 1, (cell_size/20) * 5, 0.5, 1, true, circle_texture))
-						PARTICLES[#PARTICLES]:load()
+						PARTICLES[1]:move(v.x + cell_size/2, v.y + cell_size/2)
+						PARTICLES[1]:emitParticles()
 						player:eatFood()
 						cell.space = "snake" 
 						table.remove(APPLES, 1)
@@ -129,12 +127,8 @@ function love.update(dt)
 			end
 		end
 		
-		for i = #PARTICLES, 1, -1 do
-			local v = PARTICLES[i]
+		for i, v in pairs(PARTICLES) do
 			v:update(dt)
-			if v.finished == true then
-				table.remove(PARTICLES, i)
-			end
 		end
 		
 		profile.stop()

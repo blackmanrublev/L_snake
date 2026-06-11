@@ -12,10 +12,16 @@
 ---@field timer number
 ---@field fade boolean
 ---@field alpha number
+---@field fire boolean
 ---@field particle_system love.ParticleSystem
+--- Loads the particle system with the specified parameters
 ---@field load fun(self: Particle)
+--- Updates the particle system
 ---@field update fun(self: Particle, dt: number)
+--- Draws the particles
 ---@field draw fun(self: Particle)
+---@field move fun(self: Particle, x: number, y: number)
+---@field emitParticles fun(self: Particle)
 
 ---@param x number
 ---@param y number
@@ -42,6 +48,7 @@ function createParticle(x, y, speed, spread, number, size1, size2, lifetime, alp
 		lifetime = lifetime,
 		image = image,
 		finished = false,
+		fire = false,
 		timer = 0,
 		fade = fade,
 		alpha = alpha or 1,
@@ -60,14 +67,18 @@ function createParticle(x, y, speed, spread, number, size1, size2, lifetime, alp
 		---@param self Particle
 		---@param dt number
 		update = function(self, dt)		--Update particles
-			self.particle_system:update(dt)
-			self.timer = self.timer + dt
-			if self.timer >= self.lifetime then
-				--love.event.quit()
-				self.finished = true
-			end
-			if self.fade == true then	--Fade out particles as they get closer to the end of their lifetime
-				self.alpha = 1 - (self.timer/self.lifetime)
+			if self.fire == true then
+				self.particle_system:update(dt)
+				self.timer = self.timer + dt
+				
+				if self.fade == true then	--Fade out particles as they get closer to the end of their lifetime
+					self.alpha = 1 - (self.timer/self.lifetime)
+				end
+				
+				if self.particle_system:getCount() == 0 then
+					self.fire = false
+					self.timer = 0
+				end
 			end
 		end,
 		
@@ -75,6 +86,19 @@ function createParticle(x, y, speed, spread, number, size1, size2, lifetime, alp
 		draw = function(self)
 			self.particle_system:setColors(1, 1, 1, self.alpha)		--Draw the particles with an alpha value that can be modified
 			love.graphics.draw(self.particle_system)
+		end,
+		
+		---@param self Particle
+		---@param x number
+		---@param y number
+		move = function(self, x, y)
+			self.particle_system:moveTo(x, y)
+		end,
+		
+		---@param self Particle
+		emitParticles = function(self)
+			self.fire = true
+			self.particle_system:emit(self.number)
 		end,
 	}
 end
