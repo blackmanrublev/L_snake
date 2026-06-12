@@ -2,6 +2,7 @@
 ---@field size number
 ---@field width number
 ---@field height number
+---@field canvas love.Canvas
 ---@field spaces table
 --- Create the grid and populate the spaces table with the coordinates of each cell
 ---@field load fun(self: Grid)
@@ -41,6 +42,7 @@ function createGrid(size, width, height)
 		width = width,
 		height = height,
 		spaces = {},
+		canvas = "",
 
 		---@param self Grid
 		load = function(self)
@@ -55,16 +57,29 @@ function createGrid(size, width, height)
 			end
 			
 			self.spaces = t
+			
+			self.canvas = love.graphics.newCanvas(self.width, self.height)
+			love.graphics.setCanvas(self.canvas)
+			love.graphics.clear()
+			for i, v in pairs(self.spaces) do
+				love.graphics.rectangle("line", v.world_x, v.world_y, self.size, self.size)
+			end
+			love.graphics.setCanvas()
+			
+			
 		end,
 		
 		---@param self Grid
 		---@param mouse_x? number
 		---@param mouse_y? number
 		draw = function(self, mouse_x, mouse_y)
-			for i, v in pairs(self.spaces) do
-				love.graphics.print(v.space, v.world_x, v.world_y)
-				love.graphics.rectangle("line", v.world_x, v.world_y, self.size, self.size)
+			for i, v in pairs(self:getSpaces()) do
+				if v.space ~= "" then
+					love.graphics.print(v.space, v.world_x, v.world_y)
+				end
 			end
+			
+			love.graphics.draw(self.canvas, 0, 0)
 			
 			if mouse_x ~= nil and mouse_y ~= nil then
 				local t = self:convertMouseToGrid(mouse_x, mouse_y)

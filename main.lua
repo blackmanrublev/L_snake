@@ -147,9 +147,9 @@ function love.draw()
 	
 	if game_state == "game" then
 		--love.graphics.draw(circle_texture)
-		love.graphics.print(love.timer.getFPS())
+		--love.graphics.print(love.timer.getFPS())
 		--love.graphics.print(collectgarbage("count"))
-		--love.graphics.print(player:getTotalSegments())
+		love.graphics.print(player:getTotalSegments())
 		--profile.reset()
 		for i, v in pairs(APPLES) do
 			v:draw()
