@@ -14,6 +14,8 @@ local win_width, win_height = love.window.getMode()
 local scale = 1
 local cell_size = 20
 local cam = camera()
+local line_x = 0
+local line_y = 0
 local print_report = true
 ---@type Particle[]
 local PARTICLES = {}
@@ -117,6 +119,10 @@ function love.update(dt)
 						print_report = true
 					end
 				end
+			else
+				if i == 1 then
+					line_x, line_y = grid:collapse(v.x, v.y)
+				end
 			end
 		end
 		
@@ -143,7 +149,7 @@ function love.draw()
 		--love.graphics.draw(circle_texture)
 		love.graphics.print(love.timer.getFPS())
 		--love.graphics.print(collectgarbage("count"))
-		--love.graphics.print(#player.body)
+		--love.graphics.print(player:getTotalSegments())
 		--profile.reset()
 		for i, v in pairs(APPLES) do
 			v:draw()
@@ -152,6 +158,29 @@ function love.draw()
 		for i, v in pairs(PARTICLES) do
 			v:draw()
 		end
+		
+		if line_y == 0 or line_y == grid:getHeight() then
+			love.graphics.line(line_x, line_y, line_x + cell_size, line_y)
+		end
+		if line_x == 0 or line_x == grid:getWidth() then
+			love.graphics.line(line_x, line_y, line_x, line_y + cell_size)
+		end
+		
+		-- When player's potition is at a corner 
+		if line_x == grid:getWidth() and line_y == grid:getHeight() then
+			love.graphics.line(line_x, line_y, line_x, line_y - cell_size)
+			love.graphics.line(line_x, line_y, line_x - cell_size, line_y)
+		elseif line_x == 0 and line_y == 0 then
+			love.graphics.line(line_x, line_y, line_x, line_y + cell_size)
+			love.graphics.line(line_x, line_y, line_x + cell_size, line_y)
+		elseif line_x == 0 and line_y == grid:getHeight() then
+			love.graphics.line(line_x, line_y, line_x, line_y - cell_size)
+			love.graphics.line(line_x, line_y, line_x + cell_size, line_y)
+		elseif line_y == 0 and line_x == grid:getWidth() then
+			love.graphics.line(line_x, line_y, line_x, line_y + cell_size)
+			love.graphics.line(line_x, line_y, line_x - cell_size, line_y)
+		end
+
 		--grid:draw()	
 	end
 	

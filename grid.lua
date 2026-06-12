@@ -22,6 +22,12 @@
 ---@field getTotalCells fun(self: Grid): number
 --- Get the grid.spaces table
 ---@field getSpaces fun(self: Grid): table
+--- Get the grid width
+---@field getWidth fun(self: Grid): number
+--- Get the grid height
+---@field getHeight fun(self: Grid): number
+--- Collapse coordinates to be within the bounds of the grid
+---@field collapse fun(self: Grid, x: number, y: number): number, number
 --- Convert grid coordinates to world coordinates
 ---@field convertGridToWorld fun(self: Grid, coord: number): number
 
@@ -156,10 +162,42 @@ function createGrid(size, width, height)
 		end,
 		
 		---@param self Grid
+		---@return number
+		getWidth = function(self)
+			return self.width
+		end,
+		
+		---@param self Grid
+		---@return number
+		getHeight = function(self)
+			return self.height
+		end,
+		
+		---@param self Grid
 		---@param coord number
 		---@return number
 		convertGridToWorld = function(self, coord)	--Convert grid coordinates to world coordinates
 			return (coord - 1) * self.size
+		end,
+	
+		---@param self Grid
+		---@param x number
+		---@param y number
+		collapse = function(self, x, y)
+			if x < 0 then
+				x = 0
+			end
+			if y < 0 then
+				y = 0
+			end
+			if x >= self:getWidth() then
+				x = self:getWidth()
+			end
+			if y >= self:getHeight() then
+				y = self:getHeight()
+			end
+			
+			return x, y
 		end,
 	}
 end

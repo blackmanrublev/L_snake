@@ -17,15 +17,27 @@ local tween = require "tween"
 ---@field speed number
 ---@field lifetime number
 ---@field color string
+--- Load the snake
 ---@field load fun(self: Snake)
+--- Update the snake's position and handle movement
 ---@field update fun(self: Snake, dt: number)
+--- Tween the snake's properties
 ---@field tween fun(self: Snake, dt: number)
+--- Draw the snake on the screen
 ---@field draw fun(self: Snake)
+--- Handle player input
 ---@field control fun(self: Snake, key: string)
+--- Move snake
 ---@field move fun(self: Snake)
+--- Kill snake
 ---@field kill fun(self: Snake)
+--- Eat food
 ---@field eatFood fun(self: Snake)
+--- Get snake.body
 ---@field getBody fun(self: Snake): table
+--- Get the total number of segments in the snake
+---@field getTotalSegments fun(self: Snake): number
+--- Get the last cell of the snake
 ---@field getLastCell fun(self: Snake): table
 
 ---@param x number
@@ -216,6 +228,12 @@ function createSnake(x, y, size, cell_size)
 		---@return table
 		getBody = function(self)	--Get snake's body table
 			return self.body
+		end,
+		
+		---@param self Snake
+		---@return number
+		getTotalSegments = function(self)	--Get the total number of segments in the snake
+			return #self.body
 		end,
 		
 		---@param self Snake

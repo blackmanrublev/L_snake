@@ -20,7 +20,9 @@
 ---@field update fun(self: Particle, dt: number)
 --- Draws the particles
 ---@field draw fun(self: Particle)
+--- Moves the particle system to the specified coordinates
 ---@field move fun(self: Particle, x: number, y: number)
+--- Emits particles
 ---@field emitParticles fun(self: Particle)
 
 ---@param x number
