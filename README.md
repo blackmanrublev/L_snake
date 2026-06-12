@@ -1,3 +1,3 @@
 # L_snake
 
-A failed snake game made using lua
+A failed snake game made using Lua
