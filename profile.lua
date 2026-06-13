@@ -1,4 +1,6 @@
 local clock = os.clock
+local total_time = 0
+local delta_time = 0
 
 --- Simple profiler written in Lua.
 -- @module profile
@@ -69,6 +71,7 @@ function profile.start()
     jit.flush()
   end
   debug.sethook(profile.hooker, "cr")
+  delta_time = clock()
 end
 
 --- Stops collecting data.
@@ -93,11 +96,15 @@ function profile.stop()
       lookup[id] = f
     end
   end
+  delta_time = clock() - delta_time
+  total_time = total_time + delta_time
   collectgarbage('collect')
 end
 
 --- Resets all collected data.
 function profile.reset()
+  total_time = 0
+  delta_time = 0
   for f in pairs(_ncalls) do
     _ncalls[f] = 0
   end
@@ -125,7 +132,6 @@ end
 -- @tparam[opt] number limit Maximum number of rows
 function profile.query(limit)
   local t = {}
-  local total_time = 0
   for f, n in pairs(_ncalls) do
     if n > 0 then
       t[#t + 1] = f
@@ -138,14 +144,13 @@ function profile.query(limit)
       dt = clock() - _tcalled[f]
     end
     t[i] = { i, _labeled[f] or '?', _ncalls[f], _telapsed[f] + dt, _defined[f] }
-    total_time = total_time + _telapsed[f] + dt
   end
   if limit then
     while #t > limit do
       table.remove(t)
     end
   end
-  return t, total_time
+  return t
 end
 
 local cols = { 3, 29, 11, 24, 32 }
@@ -154,7 +159,7 @@ local cols = { 3, 29, 11, 24, 32 }
 -- @tparam[opt] number limit Maximum number of rows
 function profile.report(n)
   local out = {}
-  local report, total_time = profile.query(n)
+  local report = profile.query(n)
   for i, row in ipairs(report) do
     for j = 1, 5 do
       local s = row[j]
