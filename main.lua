@@ -1,10 +1,6 @@
-local data = require "data"
 require "grid"
-require "button"
 require "particles"
 local profile = require "profile"
-local camera = require "camera"
-require "functions"
 require "snake"
 require "apple"
 
@@ -13,7 +9,6 @@ local win_width, win_height = love.window.getMode()
 
 local scale = 1
 local cell_size = 20
-local cam = camera()
 local line_x = 0
 local line_y = 0
 local print_report = true
