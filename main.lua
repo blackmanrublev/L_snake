@@ -137,6 +137,10 @@ function love.update(dt)
 			v:update(dt)
 		end
 		
+		for i, v in pairs(APPLES) do
+			v:update(dt)
+		end
+		
 		profile.stop()
 	end
 end
