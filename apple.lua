@@ -18,6 +18,8 @@ local tween = require "tween"
 ---@field draw fun(self: Apple)
 --- Kill apple
 ---@field kill fun(self: Apple)
+--- Check if apple is alive
+---@field isAlive fun(self: Apple): boolean
 
 ---@param x number
 ---@param y number
@@ -30,7 +32,7 @@ function createApple(x, y, size, cell_size)
 		y = y,
 		size = size,
 		cell_size = cell_size,
-		alive = false,
+		alive = true,
 		size_tween = "",
 		speed = 0.3,
 		draw_size = 0,
@@ -41,7 +43,9 @@ function createApple(x, y, size, cell_size)
 		
 		---@param self Apple
 		update = function(self, dt)
-			self:tween(dt)
+			if self:isAlive() then
+				self:tween(dt)
+			end
 		end,
 		
 		---@param self Apple
@@ -71,6 +75,11 @@ function createApple(x, y, size, cell_size)
 		---@param self Apple
 		kill = function(self)
 			self.alive = false
+		end,
+		
+		---@param self Apple
+		isAlive = function(self)
+			return self.alive
 		end,
 	}
 end

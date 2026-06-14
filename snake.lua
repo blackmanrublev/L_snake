@@ -31,6 +31,8 @@ local tween = require "tween"
 ---@field move fun(self: Snake)
 --- Kill snake
 ---@field kill fun(self: Snake)
+--- Check if snake is alive
+---@field isAlive fun(self: Snake): boolean
 --- Eat food
 ---@field eatFood fun(self: Snake)
 --- Get snake.body
@@ -78,20 +80,22 @@ function createSnake(x, y, size, cell_size)
 		---@param self Snake
 		---@param dt number
 		update = function(self, dt)
-			self.timer = self.timer + dt
-				self.eat = false
-			if self.timer >= self.lifetime then
-				self.last.x = self.body[#self.body].x
-				self.last.y = self.body[#self.body].y
-				self.last.size = self.body[#self.body].size
-				if #self.direction_queue > 0 then
-					self.direction = table.remove(self.direction_queue, 1)
+			if self:isAlive() then
+				self.timer = self.timer + dt
+					self.eat = false
+				if self.timer >= self.lifetime then
+					self.last.x = self.body[#self.body].x
+					self.last.y = self.body[#self.body].y
+					self.last.size = self.body[#self.body].size
+					if #self.direction_queue > 0 then
+						self.direction = table.remove(self.direction_queue, 1)
+					end
+					
+					self:move()
+					self.timer = 0
 				end
-				
-				self:move()
-				self.timer = 0
+				self:tween(dt)
 			end
-			self:tween(dt)
 		end,
 		
 		---@param self Snake
@@ -213,6 +217,11 @@ function createSnake(x, y, size, cell_size)
 		---@param self Snake
 		kill = function(self)	--Kill snake
 			self.alive = false
+		end,
+		
+		---@param self Snake
+		isAlive = function(self)
+			return self.alive
 		end,
 		
 		---@param self Snake

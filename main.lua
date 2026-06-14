@@ -14,8 +14,6 @@ local line_y = 0
 local print_report = true
 ---@type Particle[]
 local PARTICLES = {}
----@type Button[]
-local BUTTONS = {}
 ---@type Apple[]
 local APPLES = {}
 ---@type Grid
