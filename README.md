@@ -15,6 +15,7 @@ A half snake game/half experimentation environment made using Lua
 ### <ins>Instructions For Using Files In Your Own Games</ins>
 - Open folder
 - Click on file
+- Select file and all its other dependencies (snake.lua will not work without tween.lua)
 - Ctrl + C
 - Open your own game folder
 - Ctrl + V
